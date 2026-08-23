@@ -242,7 +242,8 @@ private:
             h.pfam_hints = net::pf_inet6;
         }
         if constexpr (TP == TransportProtocol::tcp) {
-            h.tproto_hints = net::sock_tcp;
+	    h.tproto_hints = net::ipproto_tcp;
+	    h.sock_hints = net::sock_tcp;
         }
 
         return h;
