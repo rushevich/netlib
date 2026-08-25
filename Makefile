@@ -1,6 +1,6 @@
 build:
-	clang++ -std=c++23 -o net main.cpp -g
+	g++ -std=c++23 -o net main.cpp socket.cpp -I.
 debug-build:
-	clang++ -std=c++23 -O0 -g -o net main.cpp
+	g++ -std=c++23 -O0 -g -o net main.cpp
 run:
 	./net
