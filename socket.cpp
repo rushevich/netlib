@@ -14,7 +14,7 @@ std::string nbo_to_platform(uint32_t ipv4_addr) {
     *ec2.ptr = '.';
     auto ec3 { std::to_chars(ec2.ptr + 1, end, (ipv4_addr >> 8) & 0xFF) };
     *ec3.ptr = '.';
-    auto ec4 { std::to_chars(ec3.ptr + 1, end, (ipv4_addr >> 0) & 0xFF) };
+    [[maybe_unused]] auto ec4 { std::to_chars(ec3.ptr + 1, end, (ipv4_addr >> 0) & 0xFF) };
 
     return result;
 }

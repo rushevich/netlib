@@ -1,7 +1,7 @@
 #include "socket.hpp"
 #include <print>
 
-int main(int argc, char* argv[]) {
+int main() {
     try {
         // Attempt to create a passive IPv4 TCP socket bound locally on port 8080 (a server socket)
 	// Perhaps this is suggestive that we should try to make some more things noexcept
