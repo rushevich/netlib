@@ -1,24 +1,25 @@
 #pragma once
 
 #include <arpa/inet.h>
+#include <bit>
 #include <cstdint>
+#include <netdb.h>
 #include <string>
+
 namespace netlib {
 
 using px_addrinfo = addrinfo;
+
 using PF_hints = int;
 using AI_hints = int;
 using TP_hints = int;
 using SC_hints = int;
-SC_hints sock_hints {};   // expects constants from the sock_ category
-AI_hints ainfo_hints {};  // expects constants from the ai_ category
-PF_hints pfam_hints {};   // expects constants from the pf_ category
-TP_hints tproto_hints {}; // expects constants from the ipproto_ category
 
-namespace flags {
+// Inline right now because I don't want to go and qualify every use
+inline namespace flags {
 
 // Socket type
-inline constexpr int sock_any = 0; // accept any type of
+inline constexpr int sock_any = 0; // accept any type
 inline constexpr int sock_tcp = 1; // TCP socket
 inline constexpr int sock_udp = 2; // UDP socket
 
@@ -51,6 +52,30 @@ inline constexpr int pf_inet6 = 30; // ipv6
 enum class ProtocolFamily : uint8_t { ipv6, ipv4 };
 enum class HostType : uint8_t { client, server };
 enum class TransportProtocol : uint8_t { tcp, udp };
+
+/**
+ * @brief Aggregate of the four hint categories accepted by getaddrinfo.
+ */
+struct Hints {
+    SC_hints sock_hints {};   // expects constants from the sock_ category
+    AI_hints ainfo_hints {};  // expects constants from the ai_ category
+    PF_hints pfam_hints {};   // expects constants from the pf_ category
+    TP_hints tproto_hints {}; // expects constants from the ipproto_ category
+
+    /**
+     * @brief Casts the Hints configuration to a POSIX addrinfo struct.
+     * @return A zero-initialized addrinfo struct populated with the specified hints.
+     */
+    [[nodiscard]] explicit operator px_addrinfo() const {
+        px_addrinfo ainfo {};
+        ainfo.ai_socktype = sock_hints;
+        ainfo.ai_flags = ainfo_hints;
+        ainfo.ai_family = pfam_hints;
+        ainfo.ai_protocol = tproto_hints;
+        return ainfo;
+    }
+};
+
 /**
  * @brief Converts a 32-bit integer from Network Byte Order (Big Endian) to Host Byte Order.
  * @param addr The 32-bit address in network byte order.
@@ -68,24 +93,6 @@ constexpr uint32_t byteorder_ntoh(uint32_t addr) {
  * @param ipv4_addr The 32-bit address in network byte order.
  * @return A string containing the formatted IPv4 address (e.g., "192.168.1.1").
  */
-static inline std::string nbo_to_platform(uint32_t ipv4_addr) {
-    static constexpr size_t max_ipv4_addr_size { 16 };
-    ipv4_addr = byteorder_ntoh(ipv4_addr);
-    std::string result(max_ipv4_addr_size, ' ');
-    auto* end { result.data() + max_ipv4_addr_size };
+[[nodiscard]] std::string nbo_to_platform(uint32_t ipv4_addr);
 
-    // Convert 8-bit octets sequentially and insert dot delimiters
-    auto ec1 = std::to_chars(result.data(), end, (ipv4_addr >> 24) & 0xFF);
-    *ec1.ptr = '.';
-    auto ec2 = std::to_chars(ec1.ptr + 1, end, (ipv4_addr >> 16) & 0xFF);
-    *ec2.ptr = '.';
-    auto ec3 { std::to_chars(ec2.ptr + 1, end, (ipv4_addr >> 8) & 0xFF) };
-    *ec3.ptr = '.';
-    auto ec4 { std::to_chars(ec3.ptr + 1, end, (ipv4_addr >> 0) & 0xFF) };
-
-    // Resize the string to the exact number of characters written to strip trailing spaces
-    result.resize(ec4.ptr - result.data());
-
-    return result;
-}
 } // namespace netlib

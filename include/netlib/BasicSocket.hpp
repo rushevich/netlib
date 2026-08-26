@@ -1,7 +1,19 @@
-#include "AddressInfo.hpp"
-#include "AddressInfoList.hpp"
-#include "common.hpp"
+#ifndef NETLIB_SOCKET_H
+#define NETLIB_SOCKET_H
+
+#include "netlib/AddressInfo.hpp"
+#include "netlib/AddressInfoList.hpp"
+#include "netlib/Common.hpp"
+
+#include <cstddef>
+#include <functional>
+#include <iostream>
+#include <print>
+#include <sys/socket.h>
+#include <unistd.h>
+
 namespace netlib {
+
 template <ProtocolFamily PF, HostType HT, TransportProtocol TP> class basic_socket {
 public:
     /**
@@ -9,7 +21,7 @@ public:
      * @param hostname The target host (null for local binding, as in creating a server socket).
      * @param servname The port or service name to bind/connect to.
      */
-    basic_socket(const char* hostname = nullptr, const char* servname = nullptr) {
+    explicit basic_socket(const char* hostname = nullptr, const char* servname = nullptr) {
         const AddressInfoList ainfo_list(m_hints, hostname, servname);
         for (size_t i {}; i < ainfo_list.size(); ++i) {
             const auto& ainfo { ainfo_list[i] };
@@ -17,13 +29,14 @@ public:
                 std::println(std::cerr, "socket inst: error");
                 continue;
             }
-            // Once a socket is successfully opened, break out of the loop
+            // Once a socket is successfully opened, record it and break out of the loop
+            m_ainfo = ainfo;
             break;
         }
         std::println(std::cerr, "Successfully constructed socket.");
     }
 
-    // For now, sockets will not me movable or copyable until we encounter a need for this.
+    // For now, sockets will not be movable or copyable until we encounter a need for this.
     // Then, these will be implemented
     basic_socket(const basic_socket&) = delete;
     basic_socket& operator=(const basic_socket&) = delete;
@@ -41,7 +54,7 @@ public:
 
 private:
     using fd = int;
-    static constexpr int closed_fd_val = -1;
+    static constexpr fd closed_fd_val = -1;
     fd m_fd { closed_fd_val };
     AddressInfo m_ainfo {};
 
@@ -64,6 +77,10 @@ private:
             h.tproto_hints = ipproto_tcp;
             h.sock_hints = sock_tcp;
         }
+        if constexpr (TP == TransportProtocol::udp) {
+            h.tproto_hints = ipproto_udp;
+            h.sock_hints = sock_udp;
+        }
 
         return h;
     });
@@ -71,4 +88,9 @@ private:
 
 using TCP_server_socket
     = basic_socket<ProtocolFamily::ipv4, HostType::server, TransportProtocol::tcp>;
+using TCP_client_socket
+    = basic_socket<ProtocolFamily::ipv4, HostType::client, TransportProtocol::tcp>;
+
 } // namespace netlib
+
+#endif

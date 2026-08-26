@@ -1,11 +1,14 @@
 #ifndef NETLIB_AINFO_H
 #define NETLIB_AINFO_H
 
-#include <variant>
+#include "netlib/Common.hpp"
+
+#include <arpa/inet.h>
 #include <string>
-#include <arpa/inet.h>i
+#include <variant>
 
 namespace netlib {
+
 struct AddressInfo {
     int family {};   // ipv6, ipv4 (checked with pf_inet and inet6)
     int socktype {}; // stream, dgram (check with sock_tcp and udp)
@@ -51,6 +54,7 @@ struct AddressInfo {
      */
     [[nodiscard]] const auto& ipv6_addr() const { return std::get<sockaddr_in6>(addr); }
 };
+
 } // namespace netlib
 
 #endif

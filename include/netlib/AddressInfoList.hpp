@@ -1,84 +1,74 @@
-#pragma once
+#ifndef NETLIB_AINFOLIST_H
+#define NETLIB_AINFOLIST_H
 
-#include "AddressInfo.hpp"
-#include "common.hpp"
+#include "netlib/AddressInfo.hpp"
+#include "netlib/Common.hpp"
 
 #include <cstddef>
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <vector>
+
 namespace netlib {
 
 class AddressInfoList {
 public:
+    AddressInfoList() = delete;
+
     /**
-     * @brief Casts the internal Hints configuration to a POSIX addrinfo struct.
-     * @return A zero-initialized addrinfo struct populated with the specified hints.
+     * @brief Constructs an AddressInfoList by performing DNS resolution or parsing local
+     * bindings.
+     * @param h The hint structure containing socket, family, and protocol preferences.
+     * @param hostname The target hostname or IP address string (e.g., "localhost" or
+     * "127.0.0.1").
+     * @param servname The target service name or port string (e.g., "http" or "8080").
+     * @throws std::runtime_error if getaddrinfo fails to resolve the requested address.
      */
-    [[nodiscard]] explicit operator addrinfo() const {
-        px_addrinfo ainfo {};
-        ainfo.ai_socktype = sock_hints;
-        ainfo.ai_flags = ainfo_hints;
-        ainfo.ai_family = pfam_hints;
-        ainfo.ai_protocol = tproto_hints;
-        return ainfo;
-    }
-};
-AddressInfoList() = delete;
+    explicit AddressInfoList(const Hints& h, const char* hostname = nullptr,
+                             const char* servname = nullptr);
 
-/**
- * @brief Constructs an AddressInfoList by performing DNS resolution or parsing local
- * bindings.
- * @param h The hint structure containing socket, family, and protocol preferences.
- * @param hostname The target hostname or IP address string (e.g., "localhost" or
- * "127.0.0.1").
- * @param servname The target service name or port string (e.g., "http" or "8080").
- * @throws std::runtime_error if getaddrinfo fails to resolve the requested address.
- */
-explicit AddressInfoList(const Hints& h, const char* hostname = nullptr,
-                         const char* servname = nullptr);
+    AddressInfoList(const AddressInfoList&) = delete;
+    AddressInfoList& operator=(const AddressInfoList&) = delete;
+    AddressInfoList(AddressInfoList&&) = delete;
+    AddressInfoList& operator=(AddressInfoList&&) = delete;
 
-/**
- * @brief Destructor that automatically frees the underlying linked list from getaddrinfo.
- */
-~AddressInfoList() { free_list(); }
+    /**
+     * @brief Destructor that automatically frees the underlying linked list from getaddrinfo.
+     */
+    ~AddressInfoList() { free_list(); }
 
-/**
- * @brief Returns the number of resolved network addresses.
- * @return Number of AddressInfo elements in the internal list.
- */
-[[nodiscard]] auto size() const { return m_addresses.size(); }
+    /**
+     * @brief Returns the number of resolved network addresses.
+     * @return Number of AddressInfo elements in the internal list.
+     */
+    [[nodiscard]] auto size() const { return m_addresses.size(); }
 
-/**
- * @brief Provides mutable array-style access to the resolved addresses.
- * @param i Index of the desired address.
- * @return Reference to the AddressInfo structure at index i.
- */
-[[nodiscard]] auto& operator[](size_t i) { return m_addresses[i]; }
+    /**
+     * @brief Provides mutable array-style access to the resolved addresses.
+     * @param i Index of the desired address.
+     * @return Reference to the AddressInfo structure at index i.
+     */
+    [[nodiscard]] auto& operator[](size_t i) { return m_addresses[i]; }
 
-/**
- * @brief Provides constant array-style access to the resolved addresses.
- * @param i Index of the desired address.
- * @return Const reference to the AddressInfo structure at index i.
- */
-[[nodiscard]] const auto& operator[](size_t i) const { return m_addresses[i]; }
+    /**
+     * @brief Provides constant array-style access to the resolved addresses.
+     * @param i Index of the desired address.
+     * @return Const reference to the AddressInfo structure at index i.
+     */
+    [[nodiscard]] const auto& operator[](size_t i) const { return m_addresses[i]; }
 
-/**
- * @brief Manually frees the POSIX addrinfo linked list to prevent memory leaks.
- * Normally handled automatically by the destructor.
- */
-void free_list();
-
-AddressInfoList(const AddressInfoList&) = delete;
-AddressInfoList& operator=(const AddressInfoList&) = delete;
-
-AddressInfoList(AddressInfoList&&) = delete;
-AddressInfoList& operator=(AddressInfoList&&) = delete;
+    /**
+     * @brief Manually frees the POSIX addrinfo linked list to prevent memory leaks.
+     * Normally handled automatically by the destructor.
+     */
+    void free_list();
 
 private:
-std::vector<AddressInfo> m_addresses;
-px_addrinfo* result_ptr { nullptr };
+    std::vector<AddressInfo> m_addresses;
+    px_addrinfo* result_ptr { nullptr };
 };
 
 } // namespace netlib
+
+#endif
