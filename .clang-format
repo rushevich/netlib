@@ -9,7 +9,7 @@
   IncludeBlocks: Regroup
   IndentPPDirectives: AfterHash
   IndentWidth: 4
-  NamespaceIndentation: All
+  NamespaceIndentation: None
   BreakBeforeBinaryOperators: All
   BreakBeforeTernaryOperators: true
   Cpp11BracedListStyle: false

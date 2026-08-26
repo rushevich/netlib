@@ -7,8 +7,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(cppnet_warnings INTERFACE)
 target_compile_options(cppnet_warnings INTERFACE -Wall -Wextra -Werror)
-add_library(netlib STATIC socket.cpp)
-target_include_directories(netlib PUBLIC ${CMAKE_SOURCE_DIR})
+add_library(netlib STATIC
+  src/AddressInfo.cpp
+  src/AddressInfoList.cpp
+)
+target_include_directories(netlib PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(netlib PRIVATE cppnet_warnings)
 
 add_executable(cppnet main.cpp)
