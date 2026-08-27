@@ -9,6 +9,7 @@
 namespace netlib {
 
 using px_addrinfo = addrinfo;
+using px_sockaddr_storage = sockaddr_storage;
 
 using PF_hints = int;
 using AI_hints = int;

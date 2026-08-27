@@ -5,54 +5,46 @@
 
 #include <arpa/inet.h>
 #include <string>
-#include <variant>
+#include <sys/socket.h>
 
 namespace netlib {
-
-struct AddressInfo {
-    int family {};   // ipv6, ipv4 (checked with pf_inet and inet6)
-    int socktype {}; // stream, dgram (check with sock_tcp and udp)
-    int protocol {}; // tcp, udp (check with ipproto_tcp and udp)
-    std::string hostname;
-    std::variant<sockaddr_in, sockaddr_in6> addr;
-
+// Can either be ipv6 or ipv4 addressinfo
+class AddressInfo {
+public:
     /**
-     * @brief Resolves the stored address family integer to a strongly-typed ProtocolFamily
-     * enum.
-     * @return ProtocolFamily::ipv4 or ProtocolFamily::ipv6 based on the internal family
-     * integer.
+     * @brief Constructs a new address info from a posix addrinfo pointer (straight from the
+     * linkedlist returned by getaddrinfo)
      */
-    [[nodiscard]] auto protocol_family() const {
-        return (family == pf_inet) ? ProtocolFamily::ipv4 : ProtocolFamily::ipv6;
-    }
+    AddressInfo() = default;
+    explicit AddressInfo(px_addrinfo* ainfo)
+        : _addr { (px_sockaddr_storage*)ainfo->ai_addr },
+          _hostname { ainfo->ai_canonname == nullptr ? "" : ainfo->ai_canonname },
+          _family { ainfo->ai_family },
+          _socktype { ainfo->ai_socktype },
+          _protocol { ainfo->ai_protocol } {}
 
-    /**
-     * @brief Retrieves a mutable reference to the underlying IPv4 socket address structure.
-     * @throws std::bad_variant_access if the address is not IPv4.
-     * @return Reference to sockaddr_in.
-     */
-    [[nodiscard]] auto& ipv4_addr() { return std::get<sockaddr_in>(addr); }
+    [[nodiscard]] auto data() const { return _addr; };
 
-    /**
-     * @brief Retrieves a constant reference to the underlying IPv4 socket address structure.
-     * @throws std::bad_variant_access if the address is not IPv4.
-     * @return Const reference to sockaddr_in.
-     */
-    [[nodiscard]] const auto& ipv4_addr() const { return std::get<sockaddr_in>(addr); }
+    [[nodiscard]] auto socklen() const {
+        if (_family == pf_inet) {
+            return sizeof(sockaddr_in);
+        }
+        return sizeof(sockaddr_in6);
+    };
 
-    /**
-     * @brief Retrieves a mutable reference to the underlying IPv6 socket address structure.
-     * @throws std::bad_variant_access if the address is not IPv6.
-     * @return Reference to sockaddr_in6.
-     */
-    [[nodiscard]] auto& ipv6_addr() { return std::get<sockaddr_in6>(addr); }
+    [[nodiscard]] auto family() const { return _family; }
 
-    /**
-     * @brief Retrieves a constant reference to the underlying IPv6 socket address structure.
-     * @throws std::bad_variant_access if the address is not IPv6.
-     * @return Const reference to sockaddr_in6.
-     */
-    [[nodiscard]] const auto& ipv6_addr() const { return std::get<sockaddr_in6>(addr); }
+    [[nodiscard]] auto socktype() const { return _socktype; }
+
+    [[nodiscard]] auto protocol() const { return _protocol; }
+
+private:
+    px_sockaddr_storage* _addr { nullptr }; // storage that works with both inet4 and inet6
+                                            // we can always cast back based on the stored _family
+    std::string _hostname;                  // human-readable
+    int _family {};                         // ipv6, ipv4 (checked with pf_inet and inet6)
+    int _socktype {};                       // stream, dgram (check with sock_tcp and udp)
+    int _protocol {};                       // tcp, udp (check with ipproto_tcp and udp)
 };
 
 } // namespace netlib

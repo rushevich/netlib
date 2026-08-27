@@ -25,7 +25,7 @@ public:
         const AddressInfoList ainfo_list(m_hints, hostname, servname);
         for (size_t i {}; i < ainfo_list.size(); ++i) {
             const auto& ainfo { ainfo_list[i] };
-            if (m_fd = socket(ainfo.family, ainfo.socktype, ainfo.protocol); m_fd == -1) {
+            if (m_fd = socket(ainfo.family(), ainfo.socktype(), ainfo.protocol()); m_fd == -1) {
                 std::println(std::cerr, "socket inst: error");
                 continue;
             }
@@ -56,7 +56,7 @@ private:
     using fd = int;
     static constexpr fd closed_fd_val = -1;
     fd m_fd { closed_fd_val };
-    AddressInfo m_ainfo {};
+    AddressInfo m_ainfo;
 
     // This is the primary mechanism for parametrizing the type of socket opened
     static constexpr Hints m_hints = std::invoke([] -> Hints {

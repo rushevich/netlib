@@ -25,7 +25,7 @@ public:
      * @param servname The target service name or port string (e.g., "http" or "8080").
      * @throws std::runtime_error if getaddrinfo fails to resolve the requested address.
      */
-    explicit AddressInfoList(const Hints& h, const char* hostname = nullptr,
+    AddressInfoList(const Hints& h, const char* hostname = nullptr,
                              const char* servname = nullptr);
 
     AddressInfoList(const AddressInfoList&) = delete;
@@ -36,7 +36,7 @@ public:
     /**
      * @brief Destructor that automatically frees the underlying linked list from getaddrinfo.
      */
-    ~AddressInfoList() { free_list(); }
+    ~AddressInfoList();
 
     /**
      * @brief Returns the number of resolved network addresses.
@@ -57,12 +57,6 @@ public:
      * @return Const reference to the AddressInfo structure at index i.
      */
     [[nodiscard]] const auto& operator[](size_t i) const { return m_addresses[i]; }
-
-    /**
-     * @brief Manually frees the POSIX addrinfo linked list to prevent memory leaks.
-     * Normally handled automatically by the destructor.
-     */
-    void free_list();
 
 private:
     std::vector<AddressInfo> m_addresses;

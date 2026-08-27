@@ -1,3 +1,4 @@
 /.cache/
 /build/
 net
+/.gdb_history
