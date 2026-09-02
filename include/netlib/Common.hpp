@@ -4,7 +4,9 @@
 #include <bit>
 #include <cstdint>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <string>
+#include <sys/socket.h>
 
 namespace netlib {
 
@@ -20,33 +22,33 @@ using SC_hints = int;
 inline namespace flags {
 
 // Socket type
-inline constexpr int sock_any = 0; // accept any type
-inline constexpr int sock_tcp = 1; // TCP socket
-inline constexpr int sock_udp = 2; // UDP socket
+inline constexpr int sock_any = 0;           // accept any type
+inline constexpr int sock_tcp = SOCK_STREAM; // TCP socket
+inline constexpr int sock_udp = SOCK_DGRAM;  // UDP socket
 
 // IP protocols
 inline constexpr int ipproto_any = 0; // accept any protocol
-inline constexpr int ipproto_tcp = 6;
-inline constexpr int ipproto_udp = 17;
+inline constexpr int ipproto_tcp = IPPROTO_TCP;
+inline constexpr int ipproto_udp = IPPROTO_UDP;
 
 // getaddrinfo hint flags
-inline constexpr int ai_passive = 1;
-inline constexpr int ai_canonname = 2;
-inline constexpr int ai_numerichost = 4;
-inline constexpr int ai_all = 256;
-inline constexpr int ai_v4mapped_cfg = 512;
-inline constexpr int ai_addrconfig = 1024;
-inline constexpr int ai_v4mapped = 2048;
-inline constexpr int ai_numericserv = 4096;
-inline constexpr int ai_unusable = 268435456;
+inline constexpr int ai_passive = AI_PASSIVE;
+inline constexpr int ai_canonname = AI_CANONNAME;
+inline constexpr int ai_numerichost = AI_NUMERICHOST;
+inline constexpr int ai_all = AI_ALL;
+// inline constexpr int ai_v4mapped_cfg = AI_V4MAPPEDCFG;
+inline constexpr int ai_addrconfig = AI_ADDRCONFIG;
+inline constexpr int ai_v4mapped = AI_V4MAPPED;
+inline constexpr int ai_numericserv = AI_NUMERICSERV;
+// inline constexpr int ai_unusable = AI_UNUSABLE;
 
 // Composite flag sets
-inline constexpr int ai_default = ai_v4mapped_cfg | ai_addrconfig; // 1536
+// inline constexpr int ai_default = AI_DEFAULT; // 1536
 
 // Protocol families
-inline constexpr int pf_unspec = 0; // returned addresses can be ipv4 or ipv6
-inline constexpr int pf_inet = 2;   // ipv4
-inline constexpr int pf_inet6 = 30; // ipv6
+inline constexpr int pf_unspec = PF_UNSPEC; // returned addresses can be ipv4 or ipv6
+inline constexpr int pf_inet = PF_INET;     // ipv4
+inline constexpr int pf_inet6 = PF_INET6;   // ipv6
 
 } // namespace flags
 
