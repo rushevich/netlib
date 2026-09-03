@@ -1,5 +1,4 @@
-#ifndef NETLIB_AINFOLIST_H
-#define NETLIB_AINFOLIST_H
+#pragma once
 
 #include "netlib/AddressInfo.hpp"
 #include "netlib/Common.hpp"
@@ -25,8 +24,7 @@ public:
      * @param servname The target service name or port string (e.g., "http" or "8080").
      * @throws std::runtime_error if getaddrinfo fails to resolve the requested address.
      */
-    AddressInfoList(const Hints& h, const char* hostname = nullptr,
-                             const char* servname = nullptr);
+    AddressInfoList(const Hints& h, const char* hostname = nullptr, const char* servname = nullptr);
 
     AddressInfoList(const AddressInfoList&) = delete;
     AddressInfoList& operator=(const AddressInfoList&) = delete;
@@ -64,5 +62,3 @@ private:
 };
 
 } // namespace netlib
-
-#endif

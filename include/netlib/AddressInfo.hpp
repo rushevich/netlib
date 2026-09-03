@@ -1,5 +1,4 @@
-#ifndef NETLIB_AINFO_H
-#define NETLIB_AINFO_H
+#pragma once
 
 #include "netlib/Common.hpp"
 
@@ -61,5 +60,3 @@ private:
 };
 
 } // namespace netlib
-
-#endif

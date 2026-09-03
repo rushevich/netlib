@@ -1,6 +1,7 @@
 #include "netlib/AddressInfoList.hpp"
 
 #include <stdexcept>
+#include <vector>
 
 namespace netlib {
 
