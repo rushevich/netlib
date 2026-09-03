@@ -4,3 +4,4 @@
 #include "netlib/AddressInfoList.hpp"
 #include "netlib/BasicSocket.hpp"
 #include "netlib/Common.hpp"
+#include "netlib/SocketHandle.hpp"

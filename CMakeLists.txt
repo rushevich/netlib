@@ -7,7 +7,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Warnings
 add_library(netlib_warnings INTERFACE)
-target_compile_options(netlib_warnings INTERFACE -Wall -Wextra -Werror)
+target_compile_options(netlib_warnings INTERFACE -Wall -Wextra -Werror -Wpedantic)
 
 # Flags
 add_library(netlib_flags INTERFACE)
