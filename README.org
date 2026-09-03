@@ -1,0 +1,13 @@
+#+TITLE: README -- Documentation on the Desired API / Interfacing Model for a Client Using ~netlib~
+#+AUTHOR: George Rushevich
+
+* Design Philosophy
+
+While the "everything is a file descriptor" generalization / abstraction made by the POSIX standard is effective for being able to think about the various primitives that we work with when getting to lower levels in systems programming, it proves to be annoyingly un-ergonomic when it comes to working with dense networking projects -- that is unless we can successfully construct an abstraction that is both safe (type safe, exception safe / predictable, etc.), and does not overly sacrifice the performance that we get in using the bare POSIX API.
+
+There are many great and very successful networking libraries across various different programming languages. There are also many libraries that suffer from certain, specific issues which unfortunately hold them back from being great libraries. One such library is Boost’s ASIO (asynchronous IO) library. Now, I don’t want to crap on Boost or its developers -- they are all probably 10x as wise and experienced as me -- but it’s no mystery that ASIO is not a perfect library for networking. Firstly, it is absolutely huge and perhaps bloated, increasing compile times drastically, and oftentimes dragging in more than a developer asks for. The API is both hard to digest and hard to work with. There are lots of rustic and legacy practices that are baked into its design.
+
+I want ~netlib~ to be the lightweight alternative to a C++ library like ~ASIO~. To do this, I’ve drawn inspiration from other popular and successful networking libraries and APIs from various programming language.
+The goal is to strike a balance between concision, performance, and giving the client the ability to pick which functionality and features they want to use, painlessly.
+
+* Model API-use Flow
