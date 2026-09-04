@@ -1,0 +1,77 @@
+#+TITLE: netlib Development Roadmap
+#+AUTHOR: George Rushevich
+#+STARTUP: showeverything
+
+* Phase 1: Foundation and Resource Management [2/3]
+
+** DONE Deliverable 1.1: ~netlib::SocketHandle~ core class
+CLOSED: [2026-09-03 Thu 16:25]
+- [X] Implement a strictly move-only class containing the raw integer file descriptor.
+- [X] Delete copy constructor and copy assignment operator.
+- [X] Implement move constructor and move assignment operator to transfer the file descriptor and nullify the source.
+- [X] Implement the destructor to invoke POSIX ~close()~ if the file descriptor is valid (~>= 0~).
+
+** TODO Deliverable 1.2: Error translation layer
+- [ ] Implement a utility to capture ~errno~ and return it as a ~std::error_code~ mapped to ~std::system_category~.
+- [ ] Ensure all subsequent library methods return ~std::expected<T, std::error_code>~ instead of integer return codes.
+
+** DONE Deliverable 1.3: CMake build system initialization
+CLOSED: [2026-09-03 Thu 16:32]
+- [X] Define ~netlib~ as an ~INTERFACE~ or ~STATIC~ library target in CMake.
+- [X] Configure include directories, compile features (C++23/26 for ~std::expected~ and ~std::span~), and strict warning flags (~-Wall -Wextra -Wpedantic -Werror~).
+
+* Phase 2: Network Resolution and Factory Implementation
+
+** TODO Deliverable 2.1: ~netlib::AddressResolver~ utility
+- [ ] Wrap ~getaddrinfo~ internally.
+- [ ] Implement a custom deleter for ~std::unique_ptr<addrinfo>~ that calls ~freeaddrinfo~.
+- [ ] Construct an iterator or loop mechanic to traverse the resolved address list safely.
+
+** TODO Deliverable 2.2: Socket Option helpers
+- [ ] Implement templated ~set_option~ methods within ~SocketHandle~ to safely invoke ~setsockopt~.
+- [ ] Include standard mappings (e.g., ~SO_REUSEADDR~, ~SO_REUSEPORT~, ~TCP_NODELAY~).
+
+* Phase 3: Typestate Wrappers
+
+** TODO Deliverable 3.1: ~netlib::TcpListener~ implementation
+- [ ] Implement the static factory ~TcpListener::bind(host, port)~.
+- [ ] Internally execute ~socket()~, apply ~SO_REUSEADDR~, ~bind()~, and ~listen()~ within the factory.
+- [ ] Implement ~TcpListener::accept()~ returning ~std::expected<TcpConnection, std::error_code>~.
+
+** TODO Deliverable 3.2: ~netlib::TcpConnection~ implementation
+- [ ] Implement the static factory ~TcpConnection::connect(host, port)~.
+- [ ] Implement ~send(std::span<const uint8_t>)~ wrapping POSIX ~send()~.
+- [ ] Implement ~receive(std::span<uint8_t>)~ wrapping POSIX ~recv()~.
+- [ ] Implement ~shutdown_write()~ mapping to ~shutdown(fd, SHUT_WR)~ to support half-closed connections.
+
+** TODO Deliverable 3.3: ~netlib::UdpSocket~ implementation
+- [ ] Implement the static factory ~UdpSocket::bind(host, port)~.
+- [ ] Implement ~send_to(address, std::span<const uint8_t>)~.
+- [ ] Implement ~receive_from(std::span<uint8_t>, address_out)~.
+
+* Phase 4: Non-Blocking Configuration and Reactor Implementation
+
+** TODO Deliverable 4.1: Non-blocking state toggles
+- [ ] Implement a method in ~SocketHandle~ to read current flags via ~fcntl(fd, F_GETFL)~.
+- [ ] Bitwise-OR ~O_NONBLOCK~ and apply via ~F_SETFL~.
+
+** TODO Deliverable 4.2: Error handling for ~EAGAIN~ / ~EWOULDBLOCK~
+- [ ] Update ~send()~ and ~receive()~ logic to detect ~EAGAIN~ or ~EWOULDBLOCK~.
+- [ ] Translate these specific ~errno~ values into a non-fatal state indicating "operation would block" (e.g., returning ~0~ bytes processed or a specific enum state) rather than a hard failure.
+
+** TODO Deliverable 4.3: ~netlib::EpollReactor~ class
+- [ ] Implement initialization wrapping ~epoll_create1(EPOLL_CLOEXEC)~.
+- [ ] Implement registration methods wrapping ~epoll_ctl~ (~EPOLL_CTL_ADD~, ~EPOLL_CTL_MOD~, ~EPOLL_CTL_DEL~).
+- [ ] Map file descriptors to an abstract callback interface or ~std::function~ inside the reactor.
+- [ ] Implement the ~run()~ loop executing ~epoll_wait~ and dispatching events to registered file descriptors.
+
+* Phase 5: Buffer Management and Integration
+
+** TODO Deliverable 5.1: ~netlib::ByteBuffer~ structure
+- [ ] Implement a contiguous dynamic buffer (or ring buffer) to hold arbitrary byte sequences.
+- [ ] Provide methods to consume specific byte counts from the head and append to the tail.
+
+** TODO Deliverable 5.2: Asynchronous ~TcpConnection~ layer
+- [ ] Integrate ~TcpConnection~ with the ~EpollReactor~.
+- [ ] Implement logic to automatically stage partial writes in the ~ByteBuffer~ and register for ~EPOLLOUT~ to resume writing when the kernel buffer drains.
+- [ ] Implement logic to accumulate partial reads in the ~ByteBuffer~ and yield application-level callbacks only when discrete messages are fully framed.
