@@ -2,3 +2,4 @@
 /build/
 net
 /.gdb_history
+*internal*

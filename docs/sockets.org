@@ -1,0 +1,21 @@
+#+TITLE: Regarding Sockets and They Are Used
+#+AUTHOR: George Rushevich
+#+STARTUP: showeverything
+
+* Background
+
+It is common knowledge that sockets are another facility built upon the Unix /file-descriptor/ abstraction. However, given that we can open up sockets with a wide variety of different parameters and characteristics, it is important for us, the library designer, to create the API such that the margin for error is minimal for the client i.e., the client should not even be able to compile miswritten networking programs (utilizing ~netlib~, of course).
+
+* Restrictions
+
+We know that a TCP server-type socket is unable to, semantically, connect to a host, for example (technically, errors mean it is unable to do so programatically, but you get what I mean). Here is a table detailing what operations should and should not be available to a given *socket wrapper*.
+
+The function declarations columns will have a ✅(check mark) if the socket wrapper type can use the function, and a ❌(cross) if not.
+I use Emacs, so these render just fine for me. Please forgive me if you are reading in an environment where they do not render.
+
+| Socket Wrapper Type | bind()  | connect() | listen() | accept() | recv()  | send()  | recvfrom() | sendto() | shutdown() |
+|---------------------+---------+-----------+----------+----------+---------+---------+------------+----------+------------|
+| TcpListener         | VALID   | INVALID   | VALID    | VALID    | INVALID | INVALID | INVALID    | INVALID  | INVALID    |
+| TcpConnection       | INVALID | VALID     | INVALID  | INVALID  | VALID   | VALID   | INVALID    | INVALID  | VALID      |
+| UdpSocket           | VALID   | INVALID   | INVALID  | INVALID  | INVALID | INVALID | VALID      | VALID    | INVALID    |
+
