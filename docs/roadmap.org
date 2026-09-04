@@ -2,7 +2,7 @@
 #+AUTHOR: George Rushevich
 #+STARTUP: showeverything
 
-* Phase 1: Foundation and Resource Management [2/3]
+* Phase 1: Foundation and Resource Management [3/4]
 
 ** DONE Deliverable 1.1: ~netlib::SocketHandle~ core class [4/4]
 CLOSED: [2026-09-03 Thu 16:25]
@@ -11,18 +11,19 @@ CLOSED: [2026-09-03 Thu 16:25]
 - [X] Implement move constructor and move assignment operator to transfer the file descriptor and nullify the source.
 - [X] Implement the destructor to invoke POSIX ~close()~ if the file descriptor is valid (~>= 0~).
 
-** TODO Deliverable 1.2: Error translation layer [1/2]
+** DONE Deliverable 1.2: Error translation layer [2/2]
+CLOSED: [2026-09-04 Fri 12:57]
 - [X] Implement a utility to capture ~errno~ and return it as a ~std::error_code~ mapped to ~std::system_category~.
-- [ ] Ensure all subsequent library methods return ~std::expected<T, std::error_code>~ instead of integer return codes.
+- [X] Ensure all subsequent library methods return ~std::expected<T, std::error_code>~ instead of integer return codes.
 
 ** DONE Deliverable 1.3: CMake build system initialization [2/2]
 CLOSED: [2026-09-03 Thu 16:32]
 - [X] Define ~netlib~ as an ~INTERFACE~ or ~STATIC~ library target in CMake.
 - [X] Configure include directories, compile features (C++23/26 for ~std::expected~ and ~std::span~), and strict warning flags (~-Wall -Wextra -Wpedantic -Werror~).
 
-** TODO Deliverable 1.4: Test harness [0/3]
-- [ ] Add GTest discovery and all required setup to CMake
-- [ ] Create *nix devshell* with all dependencies, ensure we can configure/build the project within.
+** TODO Deliverable 1.4: Test harness [2/3]
+- [X] Add GTest discovery and all required setup to CMake
+- [X] Create *nix devshell* with all dependencies, ensure we can configure/build the project within.
 - [ ] Write tests for everything we have so far
 
 * Phase 2: Network Resolution and Factory Implementation
