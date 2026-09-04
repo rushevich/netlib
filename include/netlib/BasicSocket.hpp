@@ -1,8 +1,8 @@
 #pragma once
 
 #include "netlib/AddressInfo.hpp"
-#include "netlib/AddressInfoList.hpp"
 #include "netlib/Common.hpp"
+#include "netlib/ResolvedAddresses.hpp"
 
 #include <cstddef>
 #include <functional>
@@ -24,7 +24,7 @@ public:
      */
     explicit basic_socket(const char* hostname = nullptr, const char* port = nullptr) {
         { // scope so that the list is destroyed after we discover a good address
-            const AddressInfoList ainfo_list(m_hints, hostname, port);
+            const ResolvedAddresses ainfo_list(m_hints, hostname, port);
             for (size_t i {}; i < ainfo_list.size(); ++i) {
                 const auto& ainfo { ainfo_list[i] };
                 if (_fd = socket(ainfo.family(), ainfo.socktype(), ainfo.protocol());
