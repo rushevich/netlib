@@ -26,6 +26,7 @@ private:
 // of sockets and manage the closing of the file descriptor
 class SocketHandle {
 public:
+    SocketHandle() = default;
     explicit SocketHandle(int fd) : _fd { fd } {}
 
     ~SocketHandle() noexcept;

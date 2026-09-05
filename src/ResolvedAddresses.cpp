@@ -28,6 +28,7 @@ ResolvedAddresses::ResolvedAddresses(ResolvedAddresses&& other) noexcept
     _list_ptr.reset(other._list_ptr.get());
     other._list_ptr = nullptr;
 }
+
 ResolvedAddresses& ResolvedAddresses::operator=(ResolvedAddresses&& other) noexcept {
     if (&other != this) {
         std::swap(_addresses, other._addresses);

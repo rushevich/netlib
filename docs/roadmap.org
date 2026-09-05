@@ -26,14 +26,15 @@ CLOSED: [2026-09-03 Thu 16:32]
 - [X] Create *nix devshell* with all dependencies, ensure we can configure/build the project within.
 - [ ] Write tests for everything we have so far
 
-* Phase 2: Network Resolution and Factory Implementation
+* Phase 2: Network Resolution and Factory Implementation [1/2]
 
-** TODO Deliverable 2.1: ~netlib::AddressResolver~ utility
-- [ ] Wrap ~getaddrinfo~ internally.
-- [ ] Implement a custom deleter for ~std::unique_ptr<addrinfo>~ that calls ~freeaddrinfo~.
-- [ ] Construct an iterator or loop mechanic to traverse the resolved address list safely.
+** DONE Deliverable 2.1: ~netlib::ResolvedAddresses~ utility [3/3]
+CLOSED: [2026-09-04 Fri 22:20]
+- [X] Wrap ~getaddrinfo~ internally.
+- [X] Implement a custom deleter for ~std::unique_ptr<addrinfo>~ that calls ~freeaddrinfo~.
+- [X] Construct an iterator or loop mechanic to traverse the resolved address list safely.
 
-** TODO Deliverable 2.2: Socket Option helpers
+** TODO Deliverable 2.2: Socket Option helpers [0/2]
 - [ ] Implement templated ~set_option~ methods within ~SocketHandle~ to safely invoke ~setsockopt~.
 - [ ] Include standard mappings (e.g., ~SO_REUSEADDR~, ~SO_REUSEPORT~, ~TCP_NODELAY~).
 
