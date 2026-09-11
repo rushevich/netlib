@@ -77,6 +77,7 @@ private:
 
     // This is the primary mechanism for parametrizing the type of socket opened
     static constexpr Hints m_hints = std::invoke([] -> Hints {
+        using namespace flags;
         Hints h {};
         if constexpr (HT == HostType::server) {
             h.ainfo_hints = ai_passive;
