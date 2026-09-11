@@ -26,7 +26,7 @@ public:
      * @param servname The target service name or port string (e.g., "http" or "8080").
      * @throws std::runtime_error if getaddrinfo fails to resolve the requested address.
      */
-    ResolvedAddresses(const Hints& h, const char* hostname = nullptr,
+    ResolvedAddresses(const Hints& hints, const char* hostname = nullptr,
                       const char* servname = nullptr);
 
     ResolvedAddresses(const ResolvedAddresses&) = delete ("ResolvedAddresses is a move-only type");

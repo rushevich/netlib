@@ -1,12 +1,12 @@
 #pragma once
 
-#include <compare>
+#include <compare> // spaceship operator
 #include <sys/socket.h>
 namespace netlib {
 
 // Strongly-typed PosixFD with an explicit conversion operator
 // to its underlying integer representation.
-// associated with the socket. Almost like a ‘unique_socket’
+// associated with the socket.
 struct PosixFD {
 public:
     PosixFD() = default;
@@ -43,7 +43,7 @@ public:
     [[nodiscard]] int get() const { return static_cast<int>(_fd); }
 
 private:
-    PosixFD _fd;
-    static constexpr auto invalid_fd = PosixFD { -420 };
+    PosixFD _fd { invalid_fd };
+    static constexpr auto invalid_fd = PosixFD { -1 };
 };
 } // namespace netlib

@@ -1,4 +1,6 @@
 #pragma once
+#include "netlib/AddressInfo.hpp"
+#include "netlib/Common.hpp"
 #include "netlib/SocketHandle.hpp"
 
 #include <cstdint>
@@ -7,18 +9,31 @@
 #include <span>
 #include <system_error>
 
+// there is a one way friendship TcpListener -> TcpConnection such that the TcpListener can create
+// and access fields of a connection properly. This is required for accepting new connections as a
+// listener / server
+
 namespace netlib {
+namespace detail {
+inline constexpr Hints tcp_con_hints = Hints { .sock_hints = flags::sock_tcp,
+                                               .ainfo_hints = flags::ai_canonname,
+                                               .pfam_hints = flags::pf_inet,
+                                               .tproto_hints = flags::ipproto_tcp };
+
+} // namespace detail
 class TcpConnection {
 private:
     SocketHandle _handle;
-    explicit TcpConnection(SocketHandle&& handle) : _handle { std::move(handle) } {}
+    AddressInfo
+        _ainfo; // This grows the data structure but it will be useful for debugging/diagnostics
+    explicit TcpConnection(SocketHandle&& handle, AddressInfo&& ainfo);
 
 public:
     static std::expected<TcpConnection, std::error_code> connect(const char* host,
                                                                  const char* port);
 
-    // These are quite rough outlines, when it comes to implementing them, we may discover a more
-    // ergonomic way to write them in terms of parameters, return types, etc.
+    // These are quite rough outlines, when it comes to implementing them, we may discover a
+    // more ergonomic way to write them in terms of parameters, return types, etc.
     std::optional<std::error_code> send(std::span<const uint8_t>);
 
     std::optional<std::span<uint8_t>> recv(std::span<uint8_t>);
@@ -34,7 +49,10 @@ public:
 class TcpListener {
 private:
     SocketHandle _handle;
-    explicit TcpListener(SocketHandle&& handle) : _handle { std::move(handle) } {}
+    AddressInfo _ainfo;
+    explicit TcpListener(SocketHandle&& handle, AddressInfo&& ainfo)
+        : _handle { std::move(handle) },
+          _ainfo { std::move(ainfo) } {}
 
 public:
     friend class TcpConnection;
