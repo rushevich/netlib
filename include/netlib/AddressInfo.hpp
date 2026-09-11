@@ -36,7 +36,7 @@ public:
     [[nodiscard]] auto data() const { return &_addr; };
 
     [[nodiscard]] auto socklen() const {
-        if (_family == pf_inet) {
+        if (_family == flags::pf_inet) {
             return sizeof(sockaddr_in);
         }
         return sizeof(sockaddr_in6);

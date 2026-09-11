@@ -18,8 +18,7 @@ using AI_hints = int;
 using TP_hints = int;
 using SC_hints = int;
 
-// Inline right now because I don't want to go and qualify every use
-inline namespace flags {
+namespace flags {
 
 // Socket type
 inline constexpr int sock_any = 0;           // accept any type
