@@ -1,4 +1,3 @@
-#+TITLE: Design Philosophy
 #+AUTHOR: George Rushevich
 
 * Design Philosophy
