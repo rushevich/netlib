@@ -19,6 +19,10 @@ inline constexpr Hints tcp_con_hints = Hints { .sock_hints = flags::sock_tcp,
                                                .ainfo_hints = flags::ai_canonname,
                                                .pfam_hints = flags::pf_inet,
                                                .tproto_hints = flags::ipproto_tcp };
+inline constexpr Hints tcp_listener_hints = Hints { .sock_hints = flags::sock_tcp,
+                                                    .ainfo_hints = flags::ai_passive,
+                                                    .pfam_hints = flags::pf_inet,
+                                                    .tproto_hints = flags::ipproto_tcp };
 
 } // namespace detail
 class TcpConnection {
@@ -58,7 +62,8 @@ public:
     friend class TcpConnection;
     // Uses the host and port arguments to create a TcpListener / server socket at the host on the
     // port. To create a server for use with the internet, pass in an empty hostname.
-    static std::expected<TcpListener, std::error_code> bind(const char* host, const char* port);
+    static std::expected<TcpListener, std::error_code> bind(const char* port,
+                                                            const char* host = nullptr);
 
     // Accepts any available connections as a TcpConnection
     std::expected<TcpConnection, std::error_code> accept();
