@@ -4,6 +4,8 @@
 #include "netlib/Errors.hpp"
 #include "netlib/ResolvedAddresses.hpp"
 
+#include <sys/socket.h>
+
 namespace netlib {
 TcpConnection::TcpConnection(SocketHandle&& handle, AddressInfo&& ainfo)
     : _handle { std::move(handle) },
@@ -35,6 +37,7 @@ std::expected<TcpConnection, std::error_code> TcpConnection::connect(const char*
     return TcpConnection { std::move(handle), std::move(cached_ainfo) };
 };
 
+// ---------------------- TcpListener members ----------------------------
 std::expected<TcpListener, std::error_code> TcpListener::bind(const char* port, const char* host) {
     auto addrs = ResolvedAddresses { detail::tcp_listener_hints, host, port };
 
@@ -60,4 +63,13 @@ std::expected<TcpListener, std::error_code> TcpListener::bind(const char* port, 
     return TcpListener { std::move(handle), std::move(cached_ainfo) };
 };
 
+std::expected<TcpConnection, std::error_code> TcpListener::accept() {
+    sockaddr newAddr {};
+    socklen_t newLen {};
+    int newFd {};
+    if (newFd = ::accept(_fd(), &newAddr, &newLen); newFd == -1) {
+        return std::unexpected { get_last_error() };
+    }
+    return TcpConnection { SocketHandle { newFd }, AddressInfo {} };
+}
 } // namespace netlib

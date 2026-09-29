@@ -16,11 +16,7 @@ SocketHandle& SocketHandle::operator=(SocketHandle&& other) noexcept {
     return *this;
 }
 
-SocketHandle::~SocketHandle() noexcept {
-    if (_fd != invalid_fd) {
-        ::close(static_cast<int>(_fd));
-    }
-}
+SocketHandle::~SocketHandle() noexcept { close(); }
 
 void SocketHandle::close() {
     if (_fd != invalid_fd) {

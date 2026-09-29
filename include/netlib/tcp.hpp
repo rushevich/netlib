@@ -26,6 +26,8 @@ inline constexpr Hints tcp_listener_hints = Hints { .sock_hints = flags::sock_tc
 
 } // namespace detail
 class TcpConnection {
+    friend class TcpListener;
+
 private:
     SocketHandle _handle;
     AddressInfo
@@ -57,6 +59,8 @@ private:
     explicit TcpListener(SocketHandle&& handle, AddressInfo&& ainfo)
         : _handle { std::move(handle) },
           _ainfo { std::move(ainfo) } {}
+
+    [[nodiscard]] int _fd() const noexcept { return _handle.get(); }
 
 public:
     friend class TcpConnection;

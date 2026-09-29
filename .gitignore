@@ -3,3 +3,4 @@
 net
 /.gdb_history
 *internal*
+/.direnv/

@@ -12,7 +12,6 @@ target_compile_options(netlib_warnings INTERFACE -Wall -Wextra -Werror -Wpedanti
 # Flags
 add_library(netlib_flags INTERFACE)
 target_compile_options(netlib_flags INTERFACE) #-fcontracts -fcontract-evaluation-semantic=enforce#)
-# The above line enables contracts and also enforces checking and termination
 
 # Implementations discovery
 file(GLOB_RECURSE NETLIB_SOURCES CONFIGURE_DEPENDS
