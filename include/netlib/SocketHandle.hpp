@@ -1,7 +1,12 @@
 #pragma once
 
+#include "netlib/Errors.hpp"
+#include "netlib/SocketOption.hpp"
+
 #include <compare> // spaceship operator
+#include <expected>
 #include <sys/socket.h>
+#include <system_error>
 namespace netlib {
 
 // Strongly-typed PosixFD with an explicit conversion operator
@@ -41,6 +46,13 @@ public:
 
     // Accessor for the raw FD
     [[nodiscard]] int get() const { return static_cast<int>(_fd); }
+
+    template <SocketOption O> std::expected<void, std::error_code> setOpt(O opt) {
+        if (::setsockopt(_fd, opt.level, opt.name, opt.value, sizeof opt.value)) {
+            return std::unexpected { get_last_error() };
+        }
+        return {};
+    }
 
 private:
     PosixFD _fd { invalid_fd };
