@@ -30,7 +30,8 @@ std::expected<TcpConnection, std::error_code> TcpConnection::connect(const char*
     }
     SocketHandle handle { cached_fd };
     [[maybe_unused]] auto placeholder
-        = ::connect(handle.get(), (sockaddr*)cached_ainfo.data(), cached_ainfo.socklen());
+        = ::connect(handle.get(), reinterpret_cast<const sockaddr*>(cached_ainfo.data()),
+                    cached_ainfo.socklen());
     if (auto err = get_last_error()) {
         return std::unexpected { err };
     }
@@ -56,7 +57,8 @@ std::expected<TcpListener, std::error_code> TcpListener::bind(const char* port, 
     }
     SocketHandle handle { cached_fd };
     [[maybe_unused]] auto placeholder
-        = ::bind(handle.get(), (sockaddr*)cached_ainfo.data(), cached_ainfo.socklen());
+        = ::bind(handle.get(), reinterpret_cast<sockaddr const*>(cached_ainfo.data()),
+                 cached_ainfo.socklen());
     if (auto err = get_last_error()) {
         return std::unexpected { err };
     }
