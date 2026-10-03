@@ -38,6 +38,16 @@ std::expected<TcpConnection, std::error_code> TcpConnection::connect(const char*
     return TcpConnection { std::move(handle), std::move(cached_ainfo) };
 };
 
+int TcpConnection::send(std::span<const std::byte> buf) {
+    int sentBytes = ::send(_handle.get(), buf.data(), buf.size(), 0);
+    return sentBytes;
+}
+
+int TcpConnection::receive(std::span<std::byte> buf) {
+    int recvBytes = ::recv(_handle.get(), buf.data(), buf.size(), 0);
+    return recvBytes;
+}
+
 // ---------------------- TcpListener members ----------------------------
 std::expected<TcpListener, std::error_code> TcpListener::bind(const char* port, const char* host) {
     auto addrs = ResolvedAddresses { detail::tcp_listener_hints, host, port };
@@ -48,7 +58,7 @@ std::expected<TcpListener, std::error_code> TcpListener::bind(const char* port, 
         auto& ainfo { addrs[i] };
         int fd = ::socket(ainfo.family(), ainfo.socktype(), ainfo.protocol());
         // std::error_code contextually converts to bool, and if its 0 there’s no issue
-       if (get_last_error()) {
+        if (get_last_error()) {
             continue;
         }
         cached_ainfo = std::move(ainfo);

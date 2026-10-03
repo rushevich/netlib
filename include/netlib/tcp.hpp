@@ -40,9 +40,9 @@ public:
 
     // These are quite rough outlines, when it comes to implementing them, we may discover a
     // more ergonomic way to write them in terms of parameters, return types, etc.
-    std::optional<std::error_code> send(std::span<const uint8_t>);
+    int send(std::span<const std::byte> buf);
 
-    std::optional<std::span<uint8_t>> recv(std::span<uint8_t>);
+    int receive(std::span<std::byte> buf);
 
     TcpConnection(const TcpConnection&) = delete ("TcpConnection is move only.");
     TcpConnection& operator=(const TcpConnection&) = delete ("TcpConnection is move only.");
