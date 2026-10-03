@@ -1,0 +1,10 @@
+#+TITLE: =netlib= TODO
+#+STARTUP: showeverything
+#+OPTIONS: ^:{}
+
+* Tasks
+
+** TODO Wrap posix socket functions using existing error handling
+[[file:~/projects/netlib/src/tcp.cpp::// std::error_code contextually converts to bool, and if its 0 there’s no issue]]
+
+** TODO Research coroutines & context within non-blocking sockets

@@ -29,11 +29,11 @@ std::expected<TcpConnection, std::error_code> TcpConnection::connect(const char*
         break; // Break because it means the socket was successfully created.
     }
     SocketHandle handle { cached_fd };
-    [[maybe_unused]] auto placeholder
+    auto connectResult
         = ::connect(handle.get(), reinterpret_cast<const sockaddr*>(cached_ainfo.data()),
                     cached_ainfo.socklen());
-    if (auto err = get_last_error()) {
-        return std::unexpected { err };
+    if (connectResult == -1) {
+        return std::unexpected { get_last_error() };
     }
     return TcpConnection { std::move(handle), std::move(cached_ainfo) };
 };
@@ -48,21 +48,30 @@ std::expected<TcpListener, std::error_code> TcpListener::bind(const char* port, 
         auto& ainfo { addrs[i] };
         int fd = ::socket(ainfo.family(), ainfo.socktype(), ainfo.protocol());
         // std::error_code contextually converts to bool, and if its 0 there’s no issue
-        if (get_last_error()) {
+       if (get_last_error()) {
             continue;
         }
         cached_ainfo = std::move(ainfo);
         cached_fd = fd;
         break; // Break because it means the socket was successfully created.
     }
+
     SocketHandle handle { cached_fd };
-    [[maybe_unused]] auto placeholder
-        = ::bind(handle.get(), reinterpret_cast<sockaddr const*>(cached_ainfo.data()),
-                 cached_ainfo.socklen());
-    if (auto err = get_last_error()) {
-        return std::unexpected { err };
+    auto bindResult = ::bind(handle.get(), reinterpret_cast<sockaddr const*>(cached_ainfo.data()),
+                             cached_ainfo.socklen());
+    if (bindResult == -1) {
+        return std::unexpected { get_last_error() };
     }
-    return TcpListener { std::move(handle), std::move(cached_ainfo) };
+
+    auto listenResult = ::listen(handle.get(), SOMAXCONN);
+    if (listenResult == -1) {
+        return std::unexpected { get_last_error() };
+    }
+    auto setResult = handle.setOpt(reuse_address {});
+    if (setResult.has_value()) {
+        return TcpListener { std::move(handle), std::move(cached_ainfo) };
+    }
+    return std::unexpected { setResult.error() };
 };
 
 std::expected<TcpConnection, std::error_code> TcpListener::accept() {
